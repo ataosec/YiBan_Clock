@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MJU_YiBan</title>
+</style>
+</head>
+<body>
+<h1>一、免责申明</h1>
+<p>当你使用本项目开始打卡，则默认视为您已经接受了以下条款。请仔细阅读，感谢。</p>
+<p>1.使用本项目打卡时，需先遵守法律法规。使用过程中照成的任何后果，需自行承担。</p>
+<h2>2.如果出现发热、干咳、体寒、体不适、胸痛、鼻塞、流鼻涕、恶心、腹泻等症状。请立即停止自动打卡，恢复手动打卡。认真实履行社会义务，及时进行健康申报。</h2>
+<hr>
+
+<h1>二、功能区</h1>
+<h3>加入打卡队列</h3>
+<form action="/addstudent" method="post" enctype="application/x-www-form-urlencoded">
+    <label for="mobile">手机号:</label>
+    <input type="text" name="mobile" id="mobile"><br>
+    <label for="password">密&nbsp;&nbsp;&nbsp;码:</label>
+    <input type="text" name="password" id="password"><br>
+    <input type="submit" name="submit" value="提交">
+</form>
+<br>
+<h3>退出打卡队列</h3>
+<form action="/deletestudent" method="post" enctype="application/x-www-form-urlencoded">
+    <label for="mobile_1">手机号:</label>
+    <input type="text" name="mobile" id="mobile_1"><br>
+    <label for="password_1">密&nbsp;&nbsp;&nbsp;码:</label>
+    <input type="text" name="password" id="password_1"><br>
+    <input type="submit" name="submit" value="提交">
+</form>
+<br>
+<hr>
+
+<h1>三、Q&A</h1>
+<p>1.本项目正常是3点开始打卡，当天超过该时间添加的同学请手动打卡当日的。</p>
+<p>2.打卡是直接拿前一天的信息用做今日的打卡信息。所以如果到时候回家的话可以先停一天即可。</p>
+<p>3.本项目至多维护到2022年6月份。</p>
+</body>
+</html>
