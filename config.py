@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 import requests
 import random
 from Crypto.PublicKey import RSA as RSA
@@ -8,6 +8,7 @@ import base64
 import re
 import times as T
 import time
+
 
 # 登陆时对password进行加密
 def encryptPassword(pwd):
@@ -33,6 +34,7 @@ def encryptPassword(pwd):
     cipher_text = base64.b64encode(cipher.encrypt(bytes(pwd)))
     return cipher_text.decode("utf-8")
 
+
 class user():
     CSRF = "f3ae35f68d7e6e1551ad4420157b8f6c"
     Headers = {
@@ -51,7 +53,7 @@ class user():
     # 登陆模块
     def login(self):
         url = "https://m.yiban.cn:443/api/v4/passport/login"
-        login_data = {"password": self.passwd,"mobile": self.mobile, "ct": "2", "identify": "355757884171113"}
+        login_data = {"password": self.passwd, "mobile": self.mobile, "ct": "2", "identify": "355757884171113"}
         res = self.session.post(url, headers=self.Headers, data=login_data)
         return res.json()
 
@@ -68,7 +70,8 @@ class user():
         try:
             Location = res_2.headers['Location']
             self.verify_request = re.split("https://c.uyiban.com/#/\?verify_request=(.*)&", Location)[1]
-            url = "https://api.uyiban.com:443/base/c/auth/yiban?verifyRequest={}&CSRF={}".format(self.verify_request, self.CSRF)
+            url = "https://api.uyiban.com:443/base/c/auth/yiban?verifyRequest={}&CSRF={}".format(self.verify_request,
+                                                                                                 self.CSRF)
             self.Headers["Origin"] = "https://c.uyiban.com"
             res_3 = self.session.get(url, headers=self.Headers, cookies=self.Cookies)
 
@@ -83,7 +86,8 @@ class user():
 
     # 获取前一天打卡信息
     def yesterday_task(self):
-        url_1 = "https://api.uyiban.com:443/officeTask/client/index/completedList?StartTime={}&EndTime={}&CSRF={}".format(T.yesterdayTime, T.EndTime, self.CSRF)
+        url_1 = "https://api.uyiban.com:443/officeTask/client/index/completedList?StartTime={}&EndTime={}&CSRF={}".format(
+            T.yesterdayTime, T.EndTime, self.CSRF)
         res_1 = self.session.get(url_1, headers=self.Headers, cookies=self.Cookies)
         task = res_1.json()
         taskId = task['data'][0]['TaskId']
@@ -99,7 +103,8 @@ class user():
 
     # 寻找今日需要打卡的任务
     def select_today_task(self):
-        url = "https://api.uyiban.com:443/officeTask/client/index/uncompletedList?StartTime={}&EndTime={}&CSRF={}".format(T.Starttime, T.EndTime, self.CSRF)
+        url = "https://api.uyiban.com:443/officeTask/client/index/uncompletedList?StartTime={}&EndTime={}&CSRF={}".format(
+            T.Starttime, T.EndTime, self.CSRF)
         res = requests.get(url, headers=self.Headers, cookies=self.Cookies)
         return res.json()
 
@@ -127,20 +132,27 @@ class user():
         track = message['data']['Initiate']['FormDataJson'][8]['value']
 
         task_data = {
-            'data':'{"a441d48886b2e011abb5685ea3ea4999":{"time":"%s","longitude":%s,"latitude":%s,"address":"%s"},"9cd65a003f4a2c30a4d949cad83eda0d":"%s","65ff68aeda65f345fef50b8b314184a7":["%s"],"b36100fc06308abbd5f50127d661f41e":["%s"],"c693ed0f20e629ab321514111f3ac2cb":["%s"],"91b48acca5f53c3221b01e5a1cf84f2f":"%s","9c96c042296de3e31a2821433cfec228":"%s","fd5e5be7f41a011f01336afc625d2fd4":["%s"],"c4b48d92f1a086996b0b2dd5f853c9f7":"%s"}' % (today, longitude, latitude, address, temperature, status_1, status_2, contact, accesshigh, stay, dormitory, track),
-            'extend':u'{"TaskId":"%s","title":"任务信息","content":[{"label":"任务名称","value":"%s"},{"label":"发布机构","value":"学工部"}]}' % (TaskId, Title)
+            'data': '{"a441d48886b2e011abb5685ea3ea4999":{"time":"%s","longitude":%s,"latitude":%s,"address":"%s"},"9cd65a003f4a2c30a4d949cad83eda0d":"%s","65ff68aeda65f345fef50b8b314184a7":["%s"],"b36100fc06308abbd5f50127d661f41e":["%s"],"c693ed0f20e629ab321514111f3ac2cb":["%s"],"91b48acca5f53c3221b01e5a1cf84f2f":"%s","9c96c042296de3e31a2821433cfec228":"%s","fd5e5be7f41a011f01336afc625d2fd4":["%s"],"c4b48d92f1a086996b0b2dd5f853c9f7":"%s"}' % (today, longitude, latitude, address, temperature, status_1, status_2, contact, accesshigh, stay, dormitory, track),
+            'extend': u'{"TaskId":"%s","title":"任务信息","content":[{"label":"任务名称","value":"%s"},{"label":"发布机构","value":"学工部"}]}' % (TaskId, Title)
         }
 
         url_2 = "https://api.uyiban.com:443/workFlow/c/my/apply/{}?CSRF={}".format(WFId, self.CSRF)
         res_2 = requests.post(url_2, headers=self.Headers, cookies=self.Cookies, data=task_data)
         return res_2.json()
 
+    # 进入校本化提交授权
     def shouquan(self):
         url_1 = "https://openapi.yiban.cn:443/oauth/authorize?client_id=95626fa3080300ea&redirect_uri=https://f.yiban.cn/iapp7463&display=html"
-        sq_headers = {"GET /oauth/authorize?client_id=95626fa3080300ea&redirect_uri=https": "/f.yiban.cn/iapp7463&display=html HTTP/1.1", "Connection": "close", "Upgrade-Insecure-Requests": "1", "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 yiban_android/5.0.4", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", "Referer": "https://c.uyiban.com/", "Accept-Encoding": "gzip, deflate", "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7", "X-Requested-With": "com.yiban.app"}
+        sq_headers = {
+            "GET /oauth/authorize?client_id=95626fa3080300ea&redirect_uri=https": "/f.yiban.cn/iapp7463&display=html HTTP/1.1",
+            "Connection": "close", "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 yiban_android/5.0.4",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+            "Referer": "https://c.uyiban.com/", "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7", "X-Requested-With": "com.yiban.app"}
         res = self.session.get(url_1, headers=sq_headers)
         url_2 = "https://oauth.yiban.cn:443/code/usersure"
         sq_data = {"client_id": "95626fa3080300ea", "redirect_uri": "https://f.yiban.cn/iapp7463", "state": '',
-                      "scope": "1,2,3,", "display": "html"}
+                   "scope": "1,2,3,", "display": "html"}
         res_2 = self.session.post(url_2, headers=sq_headers, data=sq_data)
         return res_2.json()
