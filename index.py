@@ -47,9 +47,9 @@ def clock_in(mobile, password):
 
 
 def main():
-    db = pymysql.connect(host='localhost', user='atao', password='atao', database='yiban')
+    db = pymysql.connect(host='localhost', user='username', password='password', database='yiban')
     cursor = db.cursor()
-    sql = "SELECT mobile, password FROM `MJUstudents`"
+    sql = "SELECT mobile, password FROM `students`"
     try:
         cursor.execute(sql)
         results = cursor.fetchall()

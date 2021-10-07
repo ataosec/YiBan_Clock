@@ -53,7 +53,7 @@ class user():
     # 登陆模块
     def login(self):
         url = "https://m.yiban.cn:443/api/v4/passport/login"
-        login_data = {"password": self.passwd, "mobile": self.mobile, "ct": "2", "identify": "355757884171113"}
+        login_data = {"password": self.passwd, "mobile": self.mobile, "ct": "2", "identify": "xxxxxx"}
         res = self.session.post(url, headers=self.Headers, data=login_data)
         return res.json()
 
