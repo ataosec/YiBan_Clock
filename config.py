@@ -8,7 +8,7 @@ import base64
 import re
 import times as T
 import time
-
+from AEScry import aes_encrypt
 
 # 登陆时对password进行加密
 def encryptPassword(pwd):
@@ -28,14 +28,16 @@ def encryptPassword(pwd):
         -----END PUBLIC KEY-----'''
     cipher = PKCS1_v1_5.new(RSA.importKey(PUBLIC_KEY))
     # py3
-    # cipher_text = base64.b64encode(cipher.encrypt(bytes(pwd, encoding="utf8")))
+    cipher_text = base64.b64encode(cipher.encrypt(bytes(pwd, encoding="utf8")))
 
     # py2
-    cipher_text = base64.b64encode(cipher.encrypt(bytes(pwd)))
+    # cipher_text = base64.b64encode(cipher.encrypt(bytes(pwd)))
     return cipher_text.decode("utf-8")
 
 
 class user():
+    AES_KEY = '2knV5VGRTScU7pOq'
+    AES_IV = 'UmNWaNtM0PUdtFCs'
     CSRF = "f3ae35f68d7e6e1551ad4420157b8f6c"
     Headers = {
         "Authorization": "Bearer", "loginToken": "", "AppVersion": "5.0.4",
@@ -110,6 +112,7 @@ class user():
 
     # 打卡
     def today_task(self, TaskId):
+        postData = {}
         url = "https://api.uyiban.com:443/officeTask/client/index/detail?TaskId={}&CSRF={}".format(TaskId, self.CSRF)
         res = requests.get(url, headers=self.Headers, cookies=self.Cookies)
         res_json = res.json()
@@ -131,12 +134,24 @@ class user():
         dormitory = message['data']['Initiate']['FormDataJson'][7]['value'][0]
         track = message['data']['Initiate']['FormDataJson'][8]['value']
 
-        task_data = {
-            'data': '{"a441d48886b2e011abb5685ea3ea4999":{"time":"%s","longitude":%s,"latitude":%s,"address":"%s"},"9cd65a003f4a2c30a4d949cad83eda0d":"%s","65ff68aeda65f345fef50b8b314184a7":["%s"],"b36100fc06308abbd5f50127d661f41e":["%s"],"c693ed0f20e629ab321514111f3ac2cb":["%s"],"91b48acca5f53c3221b01e5a1cf84f2f":"%s","9c96c042296de3e31a2821433cfec228":"%s","fd5e5be7f41a011f01336afc625d2fd4":["%s"],"c4b48d92f1a086996b0b2dd5f853c9f7":"%s"}' % (today, longitude, latitude, address, temperature, status_1, status_2, contact, accesshigh, stay, dormitory, track),
-            'extend': u'{"TaskId":"%s","title":"任务信息","content":[{"label":"任务名称","value":"%s"},{"label":"发布机构","value":"学工部"}]}' % (TaskId, Title)
-        }
+        # postData['WFId'] = WFId
+        # postData['Extend']['TaskId'] = TaskId
 
-        url_2 = "https://api.uyiban.com:443/workFlow/c/my/apply/{}?CSRF={}".format(WFId, self.CSRF)
+
+        data = '{"WFId":"%s","Data":"{\\"a441d48886b2e011abb5685ea3ea4999\\":{\\"time\\":\\"%s\\",\\"longitude\\":%s,\\"latitude\\":%s,\\"address\\":\\"%s\\"},\\"9cd65a003f4a2c30a4d949cad83eda0d\\":\\"%s\\",\\"65ff68aeda65f345fef50b8b314184a7\\":[\\"%s\\"],\\"b36100fc06308abbd5f50127d661f41e\\":[\\"%s\\"],\\"c693ed0f20e629ab321514111f3ac2cb\\":[\\"%s\\"],\\"91b48acca5f53c3221b01e5a1cf84f2f\\":\\"%s\\",\\"9c96c042296de3e31a2821433cfec228\\":\\"%s\\",\\"fd5e5be7f41a011f01336afc625d2fd4\\":[\\"%s\\"],\\"c4b48d92f1a086996b0b2dd5f853c9f7\\":\\"%s\\"}","Extend":"{\\"TaskId\\":\\"%s\\",\\"title\\":\\"任务信息\\",\\"content\\":[{\\"label\\":\\"任务名称\\",\\"value\\":\\"%s\\"},{\\"label\\":\\"发布机构\\",\\"value\\":\\"学工部\\"}]}"}'% (WFId, today, longitude, latitude, address, temperature, status_1, status_2, contact, accesshigh, stay, dormitory, track, TaskId, Title)
+
+        # task_data = {
+        #     'data': '{"a441d48886b2e011abb5685ea3ea4999":{"time":"%s","longitude":%s,"latitude":%s,"address":"%s"},"9cd65a003f4a2c30a4d949cad83eda0d":"%s","65ff68aeda65f345fef50b8b314184a7":["%s"],"b36100fc06308abbd5f50127d661f41e":["%s"],"c693ed0f20e629ab321514111f3ac2cb":["%s"],"91b48acca5f53c3221b01e5a1cf84f2f":"%s","9c96c042296de3e31a2821433cfec228":"%s","fd5e5be7f41a011f01336afc625d2fd4":["%s"],"c4b48d92f1a086996b0b2dd5f853c9f7":"%s"}' % (today, longitude, latitude, address, temperature, status_1, status_2, contact, accesshigh, stay, dormitory, track),
+        #     'extend': u'{"TaskId":"%s","title":"任务信息","content":[{"label":"任务名称","value":"%s"},{"label":"发布机构","value":"学工部"}]}' % (TaskId, Title)
+        # }
+        #
+        # postData['Data'] = json.dumps(task_data['data'], ensure_ascii=False)
+        # postData['Extend'] = json.dumps(task_data['extend'], ensure_ascii=False)
+        # postData = json.dumps(postData, ensure_ascii=False)
+
+        task_data = {"Str": aes_encrypt(self.AES_KEY, self.AES_IV, data)}
+
+        url_2 = "https://api.uyiban.com:443/workFlow/c/my/apply?CSRF={}".format(self.CSRF)
         res_2 = requests.post(url_2, headers=self.Headers, cookies=self.Cookies, data=task_data)
         return res_2.json()
 
